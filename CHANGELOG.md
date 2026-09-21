@@ -46,6 +46,42 @@ no se le exigirá.
   gestionar las solicitudes ARCO-POL.
 - `referencias/README.md` documenta el proyecto de reforma, con el detalle
   artículo por artículo de su efecto sobre la LPDP.
+- **Formato condicional** en las hojas "Plan de acción" y "Resultados", que
+  se recalcula solo al cambiar las respuestas:
+  - La columna "Estado" se colorea según su valor: Cumplido en verde,
+    Parcial en ámbar, Pendiente en rojo, Por confirmar en naranja y Sin
+    responder en gris.
+  - La celda de "Prioridad" se resalta únicamente cuando el control es de
+    prioridad Alta **y** sigue sin resolverse, que es lo que conviene
+    atender primero.
+  - Los porcentajes de "Resultados" usan tres bandas iguales en toda la
+    hoja (verde ≥ 80 %, ámbar ≥ 50 %, rojo < 50 %), de modo que un color
+    signifique siempre lo mismo.
+  - El conteo de brechas de prioridad Alta se colorea según su magnitud, y
+    el de respuestas "Parcialmente" se marca en ámbar solo si hay alguna.
+- Ajuste de impresión en las cuatro hojas (`fitToWidth`), para que el libro
+  se imprima o exporte a PDF sin cortar columnas. La muestra de prueba pasó
+  de 14 páginas a 8.
+- Comprobación en `verify_workbook.py` que recorre **todas** las celdas de
+  **todas** las hojas y falla si alguna fórmula quedó en error, más una
+  verificación específica del texto de "Lectura del resultado".
+
+### Corregido
+
+- **"Lectura del resultado" mostraba un error en lugar del texto.** La
+  fórmula de esa celda tenía un paréntesis de cierre de más desde la
+  versión 1.0.0, por lo que se evaluaba como `#VALUE!` (`Err:508` en
+  LibreOffice) en todos los libros publicados hasta ahora. El texto que
+  explica el resultado en lenguaje simple nunca llegó a verse. Las
+  comprobaciones automáticas no cubrían esa celda; ahora sí.
+- Los textos largos ya no se recortan: el alto de cada fila se estima a
+  partir del contenido en vez de quedar fijo, y la columna "Responsable
+  sugerido" se ensanchó para que quepa la etiqueta completa.
+- El recorte del "Tema" en el Plan de acción se hace en el último espacio,
+  sin partir palabras por la mitad.
+- El texto de "Lectura del resultado" ya no sugiere empezar por el
+  nombramiento del Delegado, que la reforma dejó de exigir; ahora remite al
+  Aviso de Privacidad y a los lineamientos internos ARCO-POL.
 
 ### Eliminado
 

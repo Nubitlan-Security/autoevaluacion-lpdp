@@ -102,6 +102,29 @@ def expected_values():
                 partial_count=partial_count, estados=estados)
 
 
+# Valores de error que puede devolver una fórmula, tanto en la notación de
+# Excel como en la de LibreOffice (Err:5xx).
+ERRORES_CELDA = (
+    "#VALUE!", "#REF!", "#NAME?", "#DIV/0!", "#NULL!", "#NUM!", "#N/A",
+    "#¡VALOR!", "#¡REF!", "#¿NOMBRE?", "#¡DIV/0!", "#¡NULO!", "#¡NUM!",
+)
+
+
+def buscar_celdas_en_error(wb):
+    """Devuelve una lista de mensajes por cada celda con un valor de error."""
+    hallazgos = []
+    for ws in wb.worksheets:
+        for fila in ws.iter_rows():
+            for celda in fila:
+                v = celda.value
+                if not isinstance(v, str):
+                    continue
+                if v in ERRORES_CELDA or v.startswith("Err:"):
+                    hallazgos.append(
+                        f"Celda en error: '{ws.title}'!{celda.coordinate} = {v}")
+    return hallazgos
+
+
 def recalc_with_libreoffice(path: Path, workdir: Path):
     outdir = workdir / "recalced"
     outdir.mkdir()
@@ -203,13 +226,18 @@ def main():
             if val is None or abs(val - exp["cat_pct"][cat]) > 1e-9:
                 errors.append(f"% categoría {cat}: esperado {exp['cat_pct'][cat]}, obtuvo {val!r}")
 
-        # localizar filas de brechas / parcialmente por etiqueta, por robustez
+        # Localizar las filas de brechas / parcialmente por su etiqueta. Se
+        # ancla con startswith y se toma la primera coincidencia: buscar una
+        # subcadena en cualquier parte daba falsos positivos contra el texto
+        # de "Lectura del resultado", que también menciona "prioridad Alta".
         gaps_val = partial_val = None
         for r in range(1, 30):
             label = ws_res.cell(row=r, column=1).value
-            if isinstance(label, str) and "prioridad Alta" in label:
+            if not isinstance(label, str):
+                continue
+            if gaps_val is None and label.startswith("Controles de prioridad Alta"):
                 gaps_val = ws_res.cell(row=r, column=2).value
-            if isinstance(label, str) and "Parcialmente" in label:
+            elif partial_val is None and label.startswith("Controles respondidos como"):
                 partial_val = ws_res.cell(row=r, column=2).value
         if gaps_val != exp["gaps_alta"]:
             errors.append(f"Brechas Alta: esperado {exp['gaps_alta']}, obtuvo {gaps_val!r}")
@@ -233,6 +261,32 @@ def main():
         plan_prioridades = [ws_plan.cell(row=r, column=4).value for r in range(2, 2 + len(KEYS_AUTOEVAL))]
         if plan_prioridades != sorted(plan_prioridades, key=lambda p: 0 if p == "Alta" else 1):
             errors.append("Plan de acción no está ordenado por prioridad (Alta primero)")
+
+        # --- Ninguna celda del libro debe quedar en error ---
+        # Red de seguridad: las comprobaciones anteriores solo miran las
+        # celdas que conocemos. Este barrido detecta cualquier fórmula rota
+        # en cualquier hoja, aunque nadie la esté verificando de forma
+        # explícita. (Así se detectó el Err:508 de "Lectura del resultado".)
+        errors.extend(buscar_celdas_en_error(wb2))
+
+        # --- La lectura del resultado debe ser texto, no un error ---
+        lectura = None
+        for r in range(1, 30):
+            label = ws_res.cell(row=r, column=1).value
+            if isinstance(label, str) and label.startswith("Lectura del resultado"):
+                lectura = ws_res.cell(row=r + 1, column=1).value
+                break
+        if not isinstance(lectura, str) or not lectura.startswith("Nivel de cumplimiento"):
+            errors.append(
+                f"Lectura del resultado: esperado un texto que comience con "
+                f"'Nivel de cumplimiento', obtuvo {lectura!r}")
+        else:
+            pct = expected_values()["overall_pct"]
+            banda = ("alto" if pct >= 0.8 else "intermedio" if pct >= 0.5 else "bajo")
+            if not lectura.startswith(f"Nivel de cumplimiento {banda}"):
+                errors.append(
+                    f"Lectura del resultado: con {pct:.1%} se esperaba la banda "
+                    f"'{banda}', obtuvo {lectura[:40]!r}")
 
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)

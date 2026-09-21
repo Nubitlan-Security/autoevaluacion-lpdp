@@ -8,9 +8,11 @@ script. Para regenerarlo:
 
 Requiere openpyxl (pip install openpyxl).
 """
+import math
 import os
 
 from openpyxl import Workbook
+from openpyxl.formatting.rule import CellIsRule, FormulaRule
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
@@ -448,10 +450,86 @@ BORDER = Border(left=THIN, right=THIN, top=THIN, bottom=THIN)
 WRAP = Alignment(wrap_text=True, vertical="top")
 WRAP_CENTER = Alignment(wrap_text=True, vertical="center", horizontal="center")
 
+# ---------------------------------------------------------------------------
+# Paleta semántica para el formato condicional
+# ---------------------------------------------------------------------------
+# Se usan los tonos clásicos de Excel (Bueno / Neutral / Incorrecto) para que
+# resulten familiares. El color siempre acompaña a un texto o a un número que
+# ya dice lo mismo por sí solo: nunca es el único portador del significado,
+# de modo que el libro sigue siendo legible al imprimirse en blanco y negro o
+# para una persona con daltonismo.
+CF_VERDE = dict(fill=PatternFill("solid", fgColor="C6EFCE"),
+                font=Font(name=FONT_NAME, size=10, color="006100"))
+CF_AMBAR = dict(fill=PatternFill("solid", fgColor="FFEB9C"),
+                font=Font(name=FONT_NAME, size=10, color="9C6500"))
+CF_ROJO = dict(fill=PatternFill("solid", fgColor="FFC7CE"),
+               font=Font(name=FONT_NAME, size=10, color="9C0006"))
+CF_NARANJA = dict(fill=PatternFill("solid", fgColor="FCE4D6"),
+                  font=Font(name=FONT_NAME, size=10, color="833C0C"))
+CF_GRIS = dict(fill=PatternFill("solid", fgColor="E7E6E6"),
+               font=Font(name=FONT_NAME, size=10, color="7F7F7F"))
+
+# Estado del Plan de acción -> color. El orden importa: Excel aplica la
+# primera regla que coincide.
+CF_ESTADOS = [
+    ("Cumplido", CF_VERDE),
+    ("Parcial", CF_AMBAR),
+    ("Pendiente", CF_ROJO),
+    ("Por confirmar", CF_NARANJA),
+    ("Sin responder", CF_GRIS),
+]
+
+# Umbrales de los porcentajes de cumplimiento, iguales en toda la hoja
+# Resultados para que un color signifique siempre lo mismo.
+UMBRAL_ALTO = 0.8
+UMBRAL_MEDIO = 0.5
+
+
+def aplicar_cf_porcentaje(ws, rango):
+    """Colorea un rango de porcentajes en tres bandas: >=80%, 50-79%, <50%."""
+    ws.conditional_formatting.add(rango, CellIsRule(
+        operator="greaterThanOrEqual", formula=[str(UMBRAL_ALTO)],
+        stopIfTrue=True, **CF_VERDE))
+    ws.conditional_formatting.add(rango, CellIsRule(
+        operator="greaterThanOrEqual", formula=[str(UMBRAL_MEDIO)],
+        stopIfTrue=True, **CF_AMBAR))
+    ws.conditional_formatting.add(rango, CellIsRule(
+        operator="lessThan", formula=[str(UMBRAL_MEDIO)],
+        stopIfTrue=True, **CF_ROJO))
+
 
 def set_col_widths(ws, widths):
     for i, w in enumerate(widths, start=1):
         ws.column_dimensions[get_column_letter(i)].width = w
+
+
+def estimar_alto_fila(celdas, alto_minimo=30):
+    """Estima el alto de fila necesario para que no se corte el texto.
+
+    openpyxl no puede autoajustar el alto, y dejarlo fijo recorta las
+    celdas con más texto al imprimir. Se estima el número de líneas que
+    ocupa cada celda envuelta, a partir de la longitud del texto y del
+    ancho de su columna, y se toma la más alta.
+
+    `celdas` es una secuencia de pares (texto, ancho_de_columna).
+    """
+    lineas = 1
+    for texto, ancho in celdas:
+        if not texto or ancho <= 0:
+            continue
+        # A 10 pt Arial entra algo más de un carácter por unidad de ancho.
+        por_linea = max(ancho * 1.05, 1)
+        lineas = max(lineas, math.ceil(len(texto) / por_linea))
+    return max(alto_minimo, lineas * 12.5 + 8)
+
+
+def configurar_impresion(ws, ancho_paginas=1):
+    """Ajusta la hoja para que quepa a lo ancho al imprimirla o exportarla."""
+    ws.page_setup.orientation = "landscape"
+    ws.page_setup.fitToWidth = ancho_paginas
+    ws.page_setup.fitToHeight = 0
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.print_options.horizontalCentered = True
 
 
 def style_header_row(ws, row, ncols):
@@ -590,6 +668,8 @@ def build_instrucciones(ws):
         row += 1
 
     row += 1
+    configurar_impresion(ws)
+    ws.page_setup.orientation = "portrait"
     footer(ws, row, 1)
 
 
@@ -600,7 +680,8 @@ def build_autoevaluacion(ws):
     style_header_row(ws, 1, len(headers))
     ws.row_dimensions[1].height = 30
 
-    set_col_widths(ws, [5, 14, 46, 34, 14, 9, 46, 10, 16, 46])
+    anchos_auto = [5, 14, 46, 34, 14, 9, 46, 10, 16, 46]
+    set_col_widths(ws, anchos_auto)
     ws.column_dimensions["I"].hidden = True
     ws.column_dimensions["J"].hidden = True
     ws.cell(row=1, column=9, value="Clave").font = HEADER_FONT
@@ -633,7 +714,13 @@ def build_autoevaluacion(ws):
                 cell.fill = ALT_FILL
 
         ws.cell(row=r, column=5).fill = INPUT_FILL
-        ws.row_dimensions[r].height = 60
+        # "Qué implica" solo se muestra cuando la respuesta no es "Sí", pero
+        # la fila debe poder contenerlo cuando aparezca.
+        ws.row_dimensions[r].height = estimar_alto_fila([
+            (c["pregunta"], anchos_auto[2]),
+            (c["base_legal"], anchos_auto[3]),
+            (c["que_implica"], anchos_auto[6]),
+        ], alto_minimo=45)
 
     last_row = first_row + len(CONTROLES) - 1
 
@@ -650,6 +737,7 @@ def build_autoevaluacion(ws):
     ws.add_data_validation(dv)
 
     ws.freeze_panes = "A2"
+    configurar_impresion(ws)
     footer(ws, last_row + 2, 8)
 
 
@@ -683,6 +771,7 @@ def build_resultados(ws):
         ws.cell(row=row, column=col).fill = HEADER_FILL
         ws.cell(row=row, column=col).border = BORDER
     row += 1
+    cat_first_row = row
     for cat in CATEGORIAS:
         ws.cell(row=row, column=1, value=cat).font = BODY_FONT
         cell = ws.cell(
@@ -693,6 +782,7 @@ def build_resultados(ws):
         for col in (1, 2):
             ws.cell(row=row, column=col).border = BORDER
         row += 1
+    cat_last_row = row - 1
     row += 1
 
     ws.cell(row=row, column=1, value="Brechas pendientes").font = SUBTITLE_FONT
@@ -713,26 +803,55 @@ def build_resultados(ws):
     row += 1
     lectura_cell = ws.cell(
         row=row, column=1,
-        value=(f'=IF(B{overall_row}>=0.8,'
+        value=(f'=IF(B{overall_row}>={UMBRAL_ALTO},'
                f'"Nivel de cumplimiento alto: su empresa ya tiene resuelta la '
                f'mayoría de los controles evaluados. Enfóquese en cerrar las '
                f'brechas de prioridad Alta que aún queden pendientes en el '
                f'Plan de acción.",'
-               f'IF(B{overall_row}>=0.5,'
+               f'IF(B{overall_row}>={UMBRAL_MEDIO},'
                f'"Nivel de cumplimiento intermedio: existen avances, pero '
                f'todavía hay controles importantes sin resolver. Revise el '
                f'Plan de acción y priorice los controles de prioridad Alta.",'
                f'"Nivel de cumplimiento bajo: la mayoría de los controles '
                f'evaluados no están resueltos. Se recomienda iniciar cuanto '
                f'antes por los controles de prioridad Alta del Plan de '
-               f'acción, comenzando por el nombramiento del Delegado y el '
-               f'Aviso de Privacidad.")))'))
+               f'acción, comenzando por el Aviso de Privacidad y los '
+               f'lineamientos internos para atender solicitudes '
+               f'ARCO-POL."))'))
     lectura_cell.font = BODY_FONT
     lectura_cell.alignment = WRAP
     ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=3)
     ws.row_dimensions[row].height = 80
     row += 2
 
+    # --- Formato condicional -------------------------------------------
+    # Los porcentajes usan las mismas tres bandas en toda la hoja, para que
+    # un color signifique siempre lo mismo.
+    aplicar_cf_porcentaje(ws, f"B{overall_row}")
+    aplicar_cf_porcentaje(ws, f"B{cat_first_row}:B{cat_last_row}")
+
+    # Brechas de prioridad Alta: ninguna es buena señal; tres o más, mala.
+    ws.conditional_formatting.add(f"B{gaps_row}", CellIsRule(
+        operator="equal", formula=["0"], stopIfTrue=True, **CF_VERDE))
+    ws.conditional_formatting.add(f"B{gaps_row}", CellIsRule(
+        operator="lessThanOrEqual", formula=["2"], stopIfTrue=True,
+        **CF_AMBAR))
+    ws.conditional_formatting.add(f"B{gaps_row}", CellIsRule(
+        operator="greaterThan", formula=["2"], stopIfTrue=True, **CF_ROJO))
+
+    # "Parcialmente" no es un incumplimiento, pero sí trabajo a medio
+    # terminar: se marca en ámbar solo cuando hay alguno.
+    ws.conditional_formatting.add(f"B{partial_row}", CellIsRule(
+        operator="greaterThan", formula=["0"], stopIfTrue=True, **CF_AMBAR))
+
+    for r in (overall_row, gaps_row, partial_row):
+        ws.cell(row=r, column=2).alignment = Alignment(horizontal="center")
+        ws.cell(row=r, column=2).border = BORDER
+    for r in range(cat_first_row, cat_last_row + 1):
+        ws.cell(row=r, column=2).alignment = Alignment(horizontal="center")
+
+    configurar_impresion(ws)
+    ws.page_setup.orientation = "portrait"
     footer(ws, row, 3)
     ws.column_dimensions["A"].width = 55
     ws.column_dimensions["B"].width = 18
@@ -744,7 +863,8 @@ def build_plan(ws):
     ws.append(headers)
     style_header_row(ws, 1, len(headers))
     ws.row_dimensions[1].height = 30
-    set_col_widths(ws, [5, 14, 34, 10, 50, 20, 14, 16, 14])
+    anchos_plan = [5, 14, 34, 10, 50, 34, 14, 16, 14]
+    set_col_widths(ws, anchos_plan)
     ws.column_dimensions["H"].hidden = True
     ws.column_dimensions["I"].hidden = True
     ws.cell(row=1, column=8, value="Clave").font = HEADER_FONT
@@ -759,9 +879,13 @@ def build_plan(ws):
     first_row = 2
     for i, c in enumerate(ordenados):
         r = first_row + i
+        # El "Tema" es la pregunta sin el signo de apertura. Si hay que
+        # recortarla, se corta en el último espacio para no partir una
+        # palabra por la mitad.
         tema = c["pregunta"].split("¿", 1)[-1]
         if len(tema) > 90:
-            tema = tema[:87] + "..."
+            corte = tema[:87].rsplit(" ", 1)[0].rstrip(",;:")
+            tema = corte + "…"
         ws.cell(row=r, column=1, value=i + 1)
         ws.cell(row=r, column=2, value=c["categoria"])
         ws.cell(row=r, column=3, value=tema)
@@ -791,10 +915,34 @@ def build_plan(ws):
             ws.cell(row=r, column=4).fill = ALTA_FILL
         else:
             ws.cell(row=r, column=4).fill = MEDIA_FILL
-        ws.row_dimensions[r].height = 50
+        ws.row_dimensions[r].height = estimar_alto_fila([
+            (tema, anchos_plan[2]),
+            (c["accion"], anchos_plan[4]),
+            (c["responsable"], anchos_plan[5]),
+        ], alto_minimo=40)
 
     last_row = first_row + len(CONTROLES) - 1
+
+    # Formato condicional: la columna Estado se colorea según el valor que
+    # devuelve su fórmula, de modo que cambia sola al responder la hoja
+    # Autoevaluación.
+    rango_estado = f"G{first_row}:G{last_row}"
+    for texto, estilo in CF_ESTADOS:
+        ws.conditional_formatting.add(rango_estado, CellIsRule(
+            operator="equal", formula=[f'"{texto}"'], stopIfTrue=True,
+            **estilo))
+
+    # Resalta la celda de Prioridad solo cuando el control es de prioridad
+    # Alta y además sigue sin resolverse: es lo que conviene atender primero.
+    # Un control Alta ya cumplido conserva su relleno estático suave.
+    ws.conditional_formatting.add(f"D{first_row}:D{last_row}", FormulaRule(
+        formula=[f'AND($D{first_row}="Alta",$G{first_row}<>"Cumplido")'],
+        stopIfTrue=True,
+        fill=PatternFill("solid", fgColor="F8CBAD"),
+        font=Font(name=FONT_NAME, size=10, bold=True, color="833C0C")))
+
     ws.freeze_panes = "A2"
+    configurar_impresion(ws)
     footer(ws, last_row + 2, 7)
 
 

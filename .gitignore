@@ -1,1 +1,4 @@
 referencias/*.pdf
+# Artefactos de Python
+__pycache__/
+*.py[cod]
