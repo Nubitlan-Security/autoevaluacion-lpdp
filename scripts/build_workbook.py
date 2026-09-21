@@ -25,6 +25,25 @@ from openpyxl.worksheet.datavalidation import DataValidation
 #       "Normativa para el Desarrollo del Procedimiento Administrativo
 #        Sancionador en el Ámbito de la Ley para la Protección de Datos
 #        Personales"
+#   - "Reformas a la Ley para la Protección de Datos Personales" (iniciativa
+#     del Presidente de la República presentada el 17 de septiembre de 2026,
+#     aprobada por la Asamblea Legislativa ese mismo día con 57 votos).
+#
+# IMPORTANTE — efecto de la reforma de 2026:
+#   Art. 13 de la reforma DEROGA los artículos 15 y 17 de la LPDP, que eran
+#   la base de la obligación de nombrar un Delegado de Protección de Datos
+#   Personales. Tras la reforma, esa obligación subsiste únicamente para las
+#   instituciones públicas (Art. 47 LPDP reformado). Para las entidades
+#   privadas, las funciones que correspondían al Delegado pasan directamente
+#   al sujeto obligado (Art. 16 LPDP reformado).
+#
+#   En consecuencia, los "Lineamientos para el Delegado" de la ACE dejan de
+#   ser base legal aplicable a una empresa privada, y los controles que antes
+#   los citaban se reanclaron a los artículos reformados de la LPDP.
+#
+#   La reforma entra en vigencia ocho días después de su publicación en el
+#   Diario Oficial (Art. 14 de la reforma). Este libro ya está redactado
+#   conforme al texto reformado; vea REFORMA_NOTA.
 
 CONTROLES = [
     dict(
@@ -47,35 +66,41 @@ CONTROLES = [
         key="org.delegado",
         categoria="Organización",
         prioridad="Alta",
-        pregunta="¿Su empresa ha nombrado formalmente, mediante acta o "
-        "acuerdo, a un Delegado de Protección de Datos Personales?",
-        base_legal="Lineamientos para el Delegado (ACE), Art. 4 al 7; "
-        "Políticas ACE Art. 4 lit. b) y Art. 8 lit. a) (LPDP Art. 15 y 16)",
-        que_implica="Sin un Delegado nombrado formalmente, no hay una "
-        "persona responsable de atender las solicitudes ARCO-POL de sus "
-        "clientes o empleados, ni de responder ante la ACE.",
-        accion="Nombrar formalmente al Delegado mediante acta o acuerdo del "
-        "órgano de dirección correspondiente, verificando que cumpla el "
-        "perfil mínimo exigido (Art. 5 de los Lineamientos).",
+        pregunta="¿Tiene designada internamente a una persona o área "
+        "responsable de atender las solicitudes ARCO-POL y de orientar a sus "
+        "dependencias y proveedores en la materia?",
+        base_legal="LPDP Art. 16 lit. b) (texto reformado en 2026). Nota: la "
+        "reforma derogó el Art. 15 LPDP, por lo que una empresa privada ya "
+        "NO está obligada a nombrar un Delegado formal; la obligación "
+        "subsiste solo para instituciones públicas (Art. 47 LPDP reformado)",
+        que_implica="La empresa ya no está obligada a nombrar un Delegado "
+        "formal, pero las solicitudes ARCO-POL siguen llegándole a ella y "
+        "deben responderse en veinte días hábiles. Si nadie tiene el encargo "
+        "de recibirlas, el plazo corre igual y normalmente se vence.",
+        accion="Designar internamente por escrito a una persona o área "
+        "responsable de recibir y resolver las solicitudes ARCO-POL y de "
+        "orientar a las demás áreas y a los proveedores. Ya no se requiere "
+        "el nombramiento formal de un Delegado ni su certificación ante la "
+        "ACE, salvo para instituciones públicas.",
         responsable="Entidad",
     ),
     dict(
-        key="org.delegado_ace",
+        key="org.lineamientos_arcopol",
         categoria="Organización",
         prioridad="Alta",
-        pregunta="¿Ha comunicado el nombramiento de su Delegado a la Agencia "
-        "de Ciberseguridad del Estado (ACE) e inscrito el registro "
-        "correspondiente?",
-        base_legal="Lineamientos para el Delegado (ACE), Art. 10 y 11",
-        que_implica="Un Delegado nombrado pero no comunicado a la ACE dentro "
-        "del plazo de quince días hábiles no queda inscrito en el Registro "
-        "Público de Delegados, y la empresa se expone a que la Agencia "
-        "considere que no cuenta con Delegado.",
-        accion="Notificar el nombramiento a la Dirección de Protección de "
-        "Datos Personales de la ACE dentro de los quince días hábiles "
-        "siguientes al nombramiento, por el canal que la Agencia tenga "
-        "habilitado.",
-        responsable="Entidad",
+        pregunta="¿Ha establecido lineamientos internos escritos que definan "
+        "cómo se reciben, tramitan y resuelven las solicitudes ARCO-POL de "
+        "los titulares?",
+        base_legal="LPDP Art. 16 lit. d) (texto reformado en 2026)",
+        que_implica="Esta es una obligación nueva y expresa para toda "
+        "empresa: tener por escrito cómo se gestionan estas solicitudes. Sin "
+        "esos lineamientos, cada solicitud se resuelve de forma improvisada y "
+        "distinta, y la empresa no puede demostrar que cuenta con un "
+        "procedimiento.",
+        accion="Redactar y aprobar lineamientos internos que definan quién "
+        "recibe cada solicitud ARCO-POL, cómo se registra, quién la resuelve, "
+        "en qué plazos y cómo se documenta la respuesta al titular.",
+        responsable="Responsable interno o asesor legal",
     ),
     dict(
         key="org.registro",
@@ -93,7 +118,7 @@ CONTROLES = [
         accion="Elaborar un inventario de los tratamientos de datos "
         "personales (finalidad, tipo de dato, base de tratamiento, plazo de "
         "conservación, a quién se transfiere) y mantenerlo actualizado.",
-        responsable="Delegado o asesor legal",
+        responsable="Responsable interno o asesor legal",
     ),
     dict(
         key="org.eipd",
@@ -109,7 +134,7 @@ CONTROLES = [
         accion="Identificar los tratamientos de mayor riesgo y realizar una "
         "evaluación de impacto que documente los riesgos y las medidas de "
         "mitigación adoptadas.",
-        responsable="Delegado o asesor legal",
+        responsable="Responsable interno o asesor legal",
     ),
     dict(
         key="org.capacitacion",
@@ -118,16 +143,15 @@ CONTROLES = [
         pregunta="¿Su personal recibe, al menos una vez al año, "
         "capacitación sobre protección de datos personales y el ejercicio "
         "de los derechos ARCO-POL?",
-        base_legal="Lineamientos para el Delegado (ACE), Art. 22 (Deber de "
-        "formación del Delegado); Políticas ACE Art. 4 (Medidas "
-        "Organizativas, lit. c)",
+        base_legal="Políticas ACE Art. 4 (Medidas Organizativas, lit. c — "
+        "Capacitación del Personal)",
         que_implica="Un personal sin capacitación es más propenso a cometer "
         "errores que generan una vulneración de datos, por ejemplo enviar "
         "información a un destinatario equivocado.",
         accion="Programar una capacitación anual sobre protección de datos "
         "y derechos ARCO-POL para todo el personal, incluyendo al personal "
         "de nuevo ingreso, y conservar la evidencia de la capacitación.",
-        responsable="Delegado o asesor legal",
+        responsable="Responsable interno o asesor legal",
     ),
     dict(
         key="der.aviso",
@@ -136,36 +160,41 @@ CONTROLES = [
         pregunta="¿Cuenta con un Aviso de Privacidad publicado en su sitio "
         "web y/o en sus establecimientos físicos, autorizado y documentado "
         "internamente?",
-        base_legal="Lineamientos para el Delegado (ACE), Art. 31 (Deber de "
-        "publicidad del Aviso de Privacidad)",
+        base_legal="LPDP Art. 24, en especial el lit. f) — indicación de los "
+        "medios o mecanismos para presentar las solicitudes de derechos "
+        "ARCO-POL (texto reformado en 2026)",
         que_implica="Sin un Aviso de Privacidad visible, sus clientes y "
         "empleados no están siendo informados de cómo se usan sus datos, lo "
         "cual es una de las obligaciones más básicas frente a los "
-        "titulares.",
-        accion="Redactar el Aviso de Privacidad, obtener la autorización "
-        "interna correspondiente, publicarlo en el sitio web y/o el "
-        "establecimiento, y conservar la documentación de su publicación "
-        "por al menos diez años.",
-        responsable="Delegado o asesor legal",
+        "titulares. Además, tras la reforma el aviso debe decir "
+        "expresamente por qué medio se presentan las solicitudes ARCO-POL.",
+        accion="Redactar y publicar el Aviso de Privacidad en el sitio web "
+        "y/o el establecimiento, verificando que incluya todos los "
+        "contenidos del Art. 24 de la LPDP y, en particular, la indicación "
+        "de los medios para presentar solicitudes ARCO-POL. Conserve la "
+        "documentación de su publicación.",
+        responsable="Responsable interno o asesor legal",
     ),
     dict(
         key="der.formularios",
         categoria="Derechos",
         prioridad="Media",
-        pregunta="¿Tiene disponibles formularios para el ejercicio de los "
-        "derechos ARCO-POL, tanto en su sitio web como en formato físico en "
-        "cada una de sus sedes?",
-        base_legal="Lineamientos para el Delegado (ACE), Art. 32 y 33 "
-        "(Deber de disponer de formularios para el ejercicio de los "
-        "derechos ARCO-POL)",
-        que_implica="Si un titular no encuentra un medio claro para "
-        "solicitar sus derechos, esto puede tomarse como un obstáculo a su "
-        "ejercicio, incluso si la empresa está dispuesta a atenderlo de "
-        "forma informal.",
-        accion="Publicar los formularios ARCO-POL en el sitio web y "
-        "tenerlos disponibles en formato físico en todas las sedes, usando "
-        "como base los modelos que publique la ACE.",
-        responsable="Delegado o asesor legal",
+        pregunta="¿Tiene un medio claro y disponible (formulario, correo o "
+        "ventanilla) para que un titular presente su solicitud ARCO-POL "
+        "directamente ante su empresa?",
+        base_legal="LPDP Art. 18 (la solicitud se presenta ante el sujeto "
+        "obligado) y Art. 24 lit. f) (indicación de los medios para "
+        "presentarla), ambos con texto reformado en 2026",
+        que_implica="Tras la reforma, las solicitudes ya no se canalizan a "
+        "través de un Delegado: llegan directamente a su empresa. Si el "
+        "titular no encuentra un medio claro para presentarlas, esto puede "
+        "tomarse como un obstáculo a su ejercicio, aunque la empresa esté "
+        "dispuesta a atenderlo de forma informal.",
+        accion="Habilitar y publicar al menos un medio concreto para recibir "
+        "solicitudes ARCO-POL (formulario en el sitio web, correo "
+        "electrónico o ventanilla física), e indicarlo expresamente en el "
+        "Aviso de Privacidad.",
+        responsable="Responsable interno o asesor legal",
     ),
     dict(
         key="der.plazos",
@@ -174,17 +203,22 @@ CONTROLES = [
         pregunta="¿Cuenta con un procedimiento interno que controle los "
         "plazos para resolver las solicitudes ARCO-POL de sus clientes o "
         "empleados?",
-        base_legal="Lineamientos para el Delegado (ACE), Art. 33 y 34 "
-        "(Deber de resolver y documentar las actuaciones; Plazos de "
-        "respuesta del Delegado)",
-        que_implica="Sin control de plazos, una solicitud puede quedar sin "
-        "respuesta dentro del plazo legal, lo cual constituye en sí mismo "
-        "un incumplimiento, aunque la solicitud finalmente se resuelva de "
-        "forma favorable.",
+        base_legal="LPDP Art. 20 (veinte días hábiles, prorrogables por otros "
+        "veinte), Art. 18 (prevención, diez días hábiles), Art. 19 "
+        "(incompetencia, cinco días hábiles), Art. 21 (rectificación, cinco "
+        "días hábiles), Art. 22 (denegatoria, tres días hábiles) y Art. 30 "
+        "(revocación, cinco días hábiles); todos con texto reformado en 2026",
+        que_implica="Tras la reforma, estos plazos corren contra su empresa "
+        "directamente y no contra un Delegado. Una solicitud sin respuesta "
+        "dentro del plazo legal es en sí misma un incumplimiento, aunque "
+        "después se resuelva de forma favorable.",
         accion="Implementar una bitácora o sistema de seguimiento que "
-        "registre la fecha de cada solicitud ARCO-POL y alerte antes de que "
-        "venza el plazo de respuesta.",
-        responsable="Delegado o asesor legal",
+        "registre la fecha de cada solicitud ARCO-POL, el plazo que le "
+        "aplica y una alerta antes de su vencimiento. Como referencia: "
+        "veinte días hábiles para la respuesta, tres para una denegatoria y "
+        "cinco para los avisos de rectificación, revocación o "
+        "incompetencia.",
+        responsable="Responsable interno o asesor legal",
     ),
     dict(
         key="tec.antivirus",
@@ -321,7 +355,7 @@ CONTROLES = [
         "datos personales por cuenta de la empresa e incorporar cláusulas "
         "de confidencialidad y de tratamiento de datos; incluirlas también "
         "en los contratos nuevos.",
-        responsable="Delegado o asesor legal",
+        responsable="Responsable interno o asesor legal",
     ),
     dict(
         key="tra.internacional",
@@ -341,7 +375,7 @@ CONTROLES = [
         "personales con cada proveedor (nube, correo, respaldo) y verificar "
         "las condiciones de protección que ofrece ese país o el contrato "
         "con el proveedor.",
-        responsable="Delegado o asesor legal",
+        responsable="Responsable interno o asesor legal",
     ),
     dict(
         key="tra.notificacion72",
@@ -361,13 +395,13 @@ CONTROLES = [
         "defina quién decide, a quién se notifica (ACE, Fiscalía General de "
         "la República, titulares) y en qué plazo, de modo que pueda "
         "activarse de inmediato.",
-        responsable="Delegado o asesor legal",
+        responsable="Responsable interno o asesor legal",
     ),
 ]
 
 assert len(CONTROLES) == 19
 assert {c["key"] for c in CONTROLES} == {
-    "org.politica", "org.delegado", "org.delegado_ace", "org.registro",
+    "org.politica", "org.delegado", "org.lineamientos_arcopol", "org.registro",
     "org.eipd", "org.capacitacion", "der.aviso", "der.formularios",
     "der.plazos", "tec.antivirus", "tec.cifrado", "tec.mfa",
     "tec.respaldos", "tec.vulnerabilidades", "tec.monitoreo", "fis.acceso",
@@ -378,6 +412,22 @@ CATEGORIAS = ["Organización", "Derechos", "Técnicas", "Entorno y terceros"]
 
 DISCLAIMER = ("No constituye asesoría legal ni certificación oficial de la "
               "ACE.")
+
+# Nota sobre el estado de la reforma de 2026. Se muestra en la hoja
+# Instrucciones y se repite en el README del repositorio.
+REFORMA_NOTA = (
+    "Este libro está redactado conforme a las Reformas a la Ley para la "
+    "Protección de Datos Personales aprobadas por la Asamblea Legislativa el "
+    "17 de septiembre de 2026. Dichas reformas derogaron los artículos 15 y "
+    "17 de la LPDP y, con ello, la obligación de las empresas privadas de "
+    "nombrar un Delegado de Protección de Datos Personales; esa obligación "
+    "subsiste únicamente para las instituciones públicas. Las funciones que "
+    "antes correspondían al Delegado pasan directamente a la empresa. "
+    "Tenga presente que la reforma entra en vigencia ocho días después de su "
+    "publicación en el Diario Oficial, por lo que durante ese intervalo el "
+    "texto anterior sigue siendo el vigente. Verifique la fecha de "
+    "publicación antes de tomar decisiones basadas en este documento."
+)
 
 # ---------------------------------------------------------------------------
 # Estilos
@@ -461,6 +511,16 @@ def build_instrucciones(ws):
          "pregunta está escrita en lenguaje sencillo y ordinario, pensada "
          "para quien administra o dirige un negocio, no para un "
          "especialista en seguridad de la información.", BODY_FONT),
+        ("Reforma de septiembre de 2026: ya no se exige Delegado a las "
+         "empresas privadas", SUBTITLE_FONT),
+        (REFORMA_NOTA, BODY_FONT),
+        ("En la práctica, esto significa que su empresa ya no necesita "
+         "nombrar ni certificar a un Delegado, pero sí debe atender ella "
+         "misma las solicitudes ARCO-POL (acceso, rectificación, "
+         "cancelación, oposición, portabilidad, olvido y limitación), "
+         "establecer lineamientos internos por escrito para gestionarlas, y "
+         "cumplir los plazos de respuesta. Las preguntas de este libro ya "
+         "reflejan ese reparto de obligaciones.", BODY_FONT),
         ("¿Cómo se usa?", SUBTITLE_FONT),
         ("1. Vaya a la hoja \"Autoevaluación\". 2. En la columna "
          "\"Respuesta\", de color amarillo, seleccione para cada pregunta "
@@ -505,15 +565,20 @@ def build_instrucciones(ws):
         ("Fuentes verificadas", SUBTITLE_FONT),
         ("Cada referencia de \"Base legal\" en la hoja \"Autoevaluación\" "
          "fue verificada contra: la Ley para la Protección de Datos "
-         "Personales (Decreto Legislativo N.º 144); las Políticas de "
-         "Actuación y Manejo de Datos Personales de la ACE (Políticas N.º "
-         "001-0309025-DPDP); los Lineamientos para el Delegado de "
-         "Protección de Datos Personales (Diario Oficial, Tomo 452, N.º "
-         "146, 11 de agosto de 2026); y la Normativa para el Desarrollo del "
-         "Procedimiento Administrativo Sancionador en el Ámbito de la LPDP "
-         "(mismo Diario Oficial). Si encuentra una cita que le parece "
-         "incorrecta, repórtela siguiendo las instrucciones del README.",
-         BODY_FONT),
+         "Personales (Decreto Legislativo N.º 144); las Reformas a dicha ley "
+         "aprobadas el 17 de septiembre de 2026, que son la fuente de los "
+         "artículos identificados como \"texto reformado en 2026\"; las "
+         "Políticas de Actuación y Manejo de Datos Personales de la ACE "
+         "(Políticas N.º 001-0309025-DPDP); y la Normativa para el "
+         "Desarrollo del Procedimiento Administrativo Sancionador en el "
+         "Ámbito de la LPDP (Diario Oficial, Tomo 452, N.º 146, 11 de agosto "
+         "de 2026). Los Lineamientos para el Delegado de Protección de Datos "
+         "Personales, publicados en ese mismo Diario Oficial, ya no se citan "
+         "como base legal aplicable a una empresa privada, porque "
+         "desarrollaban artículos que la reforma derogó o reescribió; siguen "
+         "siendo aplicables a las instituciones públicas. Si encuentra una "
+         "cita que le parece incorrecta, repórtela siguiendo las "
+         "instrucciones del README.", BODY_FONT),
     ]
 
     for text, font in parrafos_que_es:

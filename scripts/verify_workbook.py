@@ -20,7 +20,7 @@ SRC = REPO_ROOT / "dist" / "Autoevaluacion-LPDP.xlsx"
 
 # Orden de las 19 preguntas en la hoja Autoevaluación (según build_workbook.py)
 KEYS_AUTOEVAL = [
-    "org.politica", "org.delegado", "org.delegado_ace", "org.registro",
+    "org.politica", "org.delegado", "org.lineamientos_arcopol", "org.registro",
     "org.eipd", "org.capacitacion", "der.aviso", "der.formularios",
     "der.plazos", "tec.antivirus", "tec.cifrado", "tec.mfa",
     "tec.respaldos", "tec.vulnerabilidades", "tec.monitoreo", "fis.acceso",
@@ -28,7 +28,7 @@ KEYS_AUTOEVAL = [
 ]
 
 PRIORIDAD = {
-    "org.politica": "Alta", "org.delegado": "Alta", "org.delegado_ace": "Alta",
+    "org.politica": "Alta", "org.delegado": "Alta", "org.lineamientos_arcopol": "Alta",
     "org.registro": "Alta", "org.eipd": "Media", "org.capacitacion": "Media",
     "der.aviso": "Alta", "der.formularios": "Media", "der.plazos": "Alta",
     "tec.antivirus": "Alta", "tec.cifrado": "Alta", "tec.mfa": "Alta",
@@ -39,7 +39,7 @@ PRIORIDAD = {
 
 CATEGORIA = {
     "org.politica": "Organización", "org.delegado": "Organización",
-    "org.delegado_ace": "Organización", "org.registro": "Organización",
+    "org.lineamientos_arcopol": "Organización", "org.registro": "Organización",
     "org.eipd": "Organización", "org.capacitacion": "Organización",
     "der.aviso": "Derechos", "der.formularios": "Derechos",
     "der.plazos": "Derechos", "tec.antivirus": "Técnicas",
@@ -56,7 +56,7 @@ CATEGORIA = {
 RESPUESTAS = {
     "org.politica": "Sí",
     "org.delegado": "Sí",
-    "org.delegado_ace": "No",
+    "org.lineamientos_arcopol": "No",
     "org.registro": "Parcialmente",
     "org.eipd": "No sé",
     "org.capacitacion": "No",
