@@ -15,6 +15,45 @@ computadora de quien lo usa: no envía ni recopila ninguna información.
 
 El archivo listo para usar está en [`dist/Autoevaluacion-LPDP.xlsx`](dist/Autoevaluacion-LPDP.xlsx).
 
+## Aviso: reforma de septiembre de 2026
+
+Este libro está redactado conforme a las **Reformas a la Ley para la
+Protección de Datos Personales** aprobadas por la Asamblea Legislativa el
+**17 de septiembre de 2026** (57 votos a favor, 1 en contra), sobre
+iniciativa del Presidente de la República.
+
+Lo esencial para una empresa privada:
+
+- **Ya no está obligada a nombrar un Delegado de Protección de Datos
+  Personales.** La reforma derogó los artículos 15 y 17 de la LPDP. Esa
+  obligación subsiste solo para las **instituciones públicas** (Art. 47
+  reformado), donde además puede recaer en el Oficial de Información.
+- **Las obligaciones no desaparecieron: se trasladaron a la empresa.** El
+  Art. 16 reformado ahora lista obligaciones del *sujeto obligado*, entre
+  ellas orientar a sus dependencias y proveedores (lit. b) y **establecer
+  lineamientos internos escritos** para gestionar las solicitudes ARCO-POL
+  (lit. d).
+- **Las solicitudes ARCO-POL se presentan directamente ante la empresa**
+  (Art. 18 reformado), con plazos que corren contra ella: 20 días hábiles
+  para responder, prorrogables por otros 20 (Art. 20); 3 días para una
+  denegatoria (Art. 22); 5 días para avisos de incompetencia, rectificación
+  o revocación (Arts. 19, 21 y 30).
+- **El Aviso de Privacidad debe indicar los medios para presentar esas
+  solicitudes** (Art. 24 lit. f reformado).
+
+> **Sobre la vigencia.** La reforma entra en vigencia **ocho días después de
+> su publicación en el Diario Oficial**. Al momento de publicar esta versión
+> no se había confirmado esa publicación, por lo que durante ese intervalo
+> el texto anterior sigue siendo el vigente. El libro se adelanta a la
+> reforma de forma deliberada, para que una empresa no invierta en nombrar
+> un Delegado que ya no se le exigirá. Verifique la fecha de publicación
+> antes de tomar decisiones basadas en este documento.
+
+Los **Lineamientos para el Delegado** emitidos por la ACE desarrollaban los
+artículos 15, 16 y 17. Como la reforma derogó dos de ellos y reescribió el
+tercero, ese instrumento ya no se cita como base legal frente a una empresa
+privada; sigue siendo pertinente para las instituciones públicas.
+
 ## Cómo usarlo
 
 1. Abra `dist/Autoevaluacion-LPDP.xlsx` en Excel, LibreOffice Calc o Google
@@ -49,11 +88,12 @@ práctica de no tener ese control resuelto.
 ## Cómo reportar una cita incorrecta
 
 Cada referencia de la columna "Base legal" fue verificada contra el texto
-de la Ley para la Protección de Datos Personales, las Políticas de la ACE
-(Políticas N.º 001-0309025-DPDP) y la normativa publicada en el Diario
-Oficial del 11 de agosto de 2026 (Lineamientos para el Delegado de
-Protección de Datos Personales y Normativa para el Desarrollo del
-Procedimiento Administrativo Sancionador).
+de la Ley para la Protección de Datos Personales, las Reformas a dicha ley
+aprobadas el 17 de septiembre de 2026 (fuente de los artículos marcados como
+"texto reformado en 2026"), las Políticas de la ACE (Políticas N.º
+001-0309025-DPDP) y la Normativa para el Desarrollo del Procedimiento
+Administrativo Sancionador publicada en el Diario Oficial del 11 de agosto
+de 2026.
 
 Si encuentra una referencia que le parece incorrecta, desactualizada o mal
 citada, repórtela abriendo un *issue* en este repositorio con:
